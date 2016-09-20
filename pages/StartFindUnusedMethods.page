@@ -1,0 +1,22 @@
+<apex:page controller="JSController">
+    <apex:form >
+        <apex:outputpanel id="status">
+   Status:
+ 
+  {!requestStatus}
+  <script>requestContinue = {!requestMore};</script>
+        </apex:outputpanel>
+ <script>
+  function requestMore() {
+   if (requestContinue)
+    doRequest();
+  } 
+ </script>
+ <button onclick="if (doRequest()) return false; else return false;">Start</button>
+ <apex:commandButton action="{!doInsert}" value="Start insert"/>
+ <apex:commandButton action="{!doFindPotentialUnusedMethods}" value="Find Potential Unused Methods"/>
+  <apex:commandButton action="{!doFindUnusedClasses}" value="Find Unused Classes"/>
+ <apex:actionfunction action="{!doRequest}" name="doRequest" oncomplete="requestMore()" rerender="status">
+</apex:actionfunction>
+    </apex:form>
+</apex:page>
