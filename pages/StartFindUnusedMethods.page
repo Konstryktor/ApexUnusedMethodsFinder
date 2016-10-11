@@ -1,22 +1,49 @@
 <apex:page controller="JSController">
-    <apex:form >
-        <apex:outputpanel id="status">
-   Status:
- 
-  {!requestStatus}
-  <script>requestContinue = {!requestMore};</script>
-        </apex:outputpanel>
- <script>
-  function requestMore() {
-   if (requestContinue)
-    doRequest();
-  } 
- </script>
- <button onclick="if (doRequest()) return false; else return false;">Start</button>
- <apex:commandButton action="{!doInsert}" value="Start insert"/>
- <apex:commandButton action="{!doFindPotentialUnusedMethods}" value="Find Potential Unused Methods"/>
-  <apex:commandButton action="{!doFindUnusedClasses}" value="Find Unused Classes"/>
- <apex:actionfunction action="{!doRequest}" name="doRequest" oncomplete="requestMore()" rerender="status">
-</apex:actionfunction>
-    </apex:form>
+  <apex:form >
+
+    <apex:outputpanel id="status">
+      <p>
+        <h1>Please, DON'T REFRESH this page (F5)</h1>
+      </p>
+      <p>
+        <h1>Status: {!requestStatus}</h1>
+      </p>
+      <p>
+        <h1>{!message}</h1>
+      </p>
+
+      <script>
+        requestContinue = {!requestMore};
+        minuteContinue = {!isMinute};
+        jobContinue = {!notCompleteJob};
+      </script>
+    </apex:outputpanel>
+  
+    <script>
+      function requestMore() {
+        if (requestContinue) { 
+          doRequest();
+        } else if (minuteContinue) {
+          waitMinute();
+        } else if (jobContinue) {
+          isJobComplete();
+        }
+      }    
+    </script>
+   
+    <apex:actionfunction action="{!doRequest}" name="doRequest" oncomplete="requestMore()" rerender="status,hiddenButtons"></apex:actionfunction>  
+    <apex:actionfunction action="{!waitMinute}" name="waitMinute" oncomplete="requestMore()" rerender="status,hiddenButtons"></apex:actionfunction>    
+    <apex:actionfunction action="{!isJobComplete}" name="isJobComplete" oncomplete="requestMore()" rerender="status,hiddenButtons"></apex:actionfunction>
+    
+      
+    <apex:pageBlock id="hiddenButtons">
+    
+        <apex:commandButton rendered="{!notDisabled}" onclick="if (doRequest()) return false; else return false;" value="Start"/> 
+        <apex:commandButton rendered="{!isHandled}" action="{!doInsert}" oncomplete="isJobComplete();" rerender="status,hiddenButtons" value="Insert ClassMethod Records"/>  
+        <apex:commandButton rendered="{!notFoundPUM}" action="{!doFindPotentialUnusedMethods}" rerender="status,hiddenButtons" value="Find Potential Unused Methods"/>    
+        <apex:commandButton rendered="{!notFoundUC}" action="{!doFindUnusedClasses}" rerender="status,hiddenButtons" value="Find Unused Classes"/>
+
+    </apex:pageBlock>
+
+  </apex:form>
 </apex:page>
